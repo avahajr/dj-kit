@@ -5,15 +5,16 @@ const activeGains = {};
 var recording = false; // to implement later
 const asdrTimes = {
   attack: 0.1,
-  release: 0.1,
+  release: 0.2,
 };
+// numKeysPressed = 0;
 
 document.addEventListener("DOMContentLoaded", function (event) {
   const keyMap = {
-    9: 261.625565300598634, // "TAB" c4
+    16: 261.625565300598634, // "LSHIFT" c4
     20: 293.66476791740756, // "CAPSLOCK" d4
-    65: 293.66476791740756, // "A" e4
-    83: 329.627556912869929, // "S" f4
+    65: 329.627556912869929, // "A" e4
+    83: 349.23, // "S" f4
     68: 391.995435981749294, // "D" g4
     70: 440.0, // "F" a4
     71: 493.883301256124111, // "G" b4
@@ -23,15 +24,15 @@ document.addEventListener("DOMContentLoaded", function (event) {
     76: 698.456, // "L" f5
     186: 783.991, // ";" g5
     222: 880.0, // "'" a5
-    13: 987.767, // return ("\n") b5
+    13: 987.767, // return b5
     220: 1046.5, // "\" c5
   };
 
   function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     dynCompr = audioCtx.createDynamicsCompressor();
-    dynCompr.release.setValueAtTime(asdrTimes["release"], audioCtx.currentTime);
-    dynCompr.attack.setValueAtTime(asdrTimes["attack"], audioCtx.currentTime);
+    dynCompr.release.setValueAtTime(asdrTimes.release, audioCtx.currentTime);
+    dynCompr.attack.setValueAtTime(asdrTimes.release, audioCtx.currentTime);
   }
 
   function playNote(key) {
@@ -44,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     activeOscs[key] = newOsc;
 
     const newGain = audioCtx.createGain();
-    newGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    newGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
     activeGains[key] = newGain;
 
     newOsc.start();
@@ -52,20 +53,27 @@ document.addEventListener("DOMContentLoaded", function (event) {
   }
 
   function keyDown(e) {
-    console.log("keyDown");
+    // console.log("keyDown");
     const key = (e.detail || e.which).toString();
-    console.log(key);
+    // console.log(key);
     if (keyMap[key] && !activeOscs[key]) {
       playNote(key);
     }
-    console.log(audioCtx);
+    // numKeysPressed += 1;
+    // console.log(audioCtx);
   }
 
   function keyUp(e) {
     const key = (e.detail || e.which).toString();
     if (keyMap[key] && activeOscs[key]) {
-      activeOscs[key].stop();
+      setTimeout(
+        activeGains[key].gain.setTargetAtTime(0, audioCtx.currentTime, 0.015),
+        1
+      );
+      delete activeOscs[key];
+      delete activeGains[key];
     }
+    // numKeysPressed -= 1;
   }
   document.addEventListener("keydown", keyDown);
   document.addEventListener("keyup", keyUp);
