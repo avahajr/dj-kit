@@ -7,10 +7,11 @@ const asdrTimes = {
   attack: 0.1,
   release: 0.2,
 };
-// numKeysPressed = 0;
+var mode = "piano"; // lets us change the instrument. Options: Osc, piano, harpischord, custom
+var sample; // variable for the custom sample
 
 document.addEventListener("DOMContentLoaded", function (event) {
-  const keyMap = {
+  const keyValToFreq = {
     16: 261.625565300598634, // "LSHIFT" c4
     20: 293.66476791740756, // "CAPSLOCK" d4`
     65: 329.627556912869929, // "A" e4
@@ -22,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     74: 587.33, // "J" d5
     75: 659.255, // "K" e5
     76: 698.456, // "L" f5
-    186: 783.991, // ";" g5
+    59: 783.991, // ";" g5
     222: 880.0, // "'" a5
     13: 987.767, // return b5
     220: 1046.5, // "\" c5
@@ -51,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     74: "d5", // "J" d5
     75: "e5", // "K" e5
     76: "f5", // "L" f5
-    186: "g5", // ";" g5
+    59: "g5", // ";" g5
     222: "a5", // "'" a5
     13: "b5", // return b5
     220: "c6", // "\" c6
@@ -68,6 +69,35 @@ document.addEventListener("DOMContentLoaded", function (event) {
     219: "a_sharp5", // [
   };
 
+  const keyValToMidi = {
+    16: 60, // "LSHIFT" c4
+    20: 62, // "CAPSLOCK" d4`
+    65: 64, // "A" e4
+    83: 65, // "S" f4
+    68: 67, // "D" g4
+    70: 69, // "F" a4
+    71: 71, // "G" b4
+    72: 72, // "H" c5
+    74: 74, // "J" d5
+    75: 76, // "K" e5
+    76: 77, // "L" f5
+    59: 79, // ";" g5
+    222: 81, // "'" a5
+    13: 83, // return b5
+    220: 84, // "\" c6
+    // black keys
+    81: 61, // q
+    87: 63, // w
+    69: 66, // e
+    82: 68, // r
+    84: 70, // t
+    85: 73, // y
+    73: 75, // u
+    79: 78, // i
+    80: 80, // o
+    219: 82, // [
+  };
+
   function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     dynCompr = audioCtx.createDynamicsCompressor();
@@ -76,27 +106,60 @@ document.addEventListener("DOMContentLoaded", function (event) {
   }
 
   function playNote(key) {
+    // sample = document.getElementById("audio-sample").value;
+
     if (!audioCtx) {
       initAudio();
-      console.log("init audio");
+      // console.log("init audio");
     }
-    const newOsc = audioCtx.createOscillator();
-    newOsc.frequency.setValueAtTime(keyMap[key], audioCtx.currentTime);
-    activeOscs[key] = newOsc;
+    if (mode === "osc") {
+      const newOsc = audioCtx.createOscillator();
+      newOsc.frequency.setValueAtTime(keyValToFreq[key], audioCtx.currentTime);
+      activeOscs[key] = newOsc;
 
+      const newGain = audioCtx.createGain();
+      newGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      activeGains[key] = newGain;
+
+      newOsc.start();
+      newOsc.connect(newGain).connect(dynCompr).connect(audioCtx.destination);
+    } else {
+      // we are in sample mode
+      if (mode !== "custom") {
+        // console.log(mode);
+        // piano, harpsichord
+        loadSample("keyboard_settings/" + mode + "_c4.wav").then((sample) =>
+          playSample(sample, 60, keyValToMidi[key], key)
+        );
+      } else {
+        // custom audio sampling
+        sample = document.getElementById("audio-sample").value;
+      }
+    }
+  }
+  function loadSample(url) {
+    return fetch(url)
+      .then((response) => response.arrayBuffer())
+      .then((buffer) => audioCtx.decodeAudioData(buffer));
+  }
+
+  function playSample(sample, sampleMidiNote, midiNoteToPlay, key) {
+    const source = audioCtx.createBufferSource();
+    source.buffer = sample;
+    source.playbackRate.value = 2 ** ((midiNoteToPlay - sampleMidiNote) / 12);
     const newGain = audioCtx.createGain();
-    newGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    newGain.gain.value = 0.1;
+    source.connect(newGain).connect(dynCompr).connect(audioCtx.destination);
+    source.start(0);
     activeGains[key] = newGain;
-
-    newOsc.start();
-    newOsc.connect(newGain).connect(dynCompr).connect(audioCtx.destination);
+    activeOscs[key] = source;
   }
 
   function keyDown(e) {
     // console.log("keyDown");
     const key = (e.detail || e.which).toString();
     console.log(key);
-    if (keyMap[key] && !activeOscs[key]) {
+    if (keyValToFreq[key] && !activeOscs[key]) {
       playNote(key);
       document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
     }
@@ -106,20 +169,21 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
   function keyUp(e) {
     const key = (e.detail || e.which).toString();
-    if (keyMap[key] && activeOscs[key]) {
-      setTimeout(
-        activeGains[key].gain.setTargetAtTime(0, audioCtx.currentTime, 0.015),
-        1
+    if (keyValToFreq[key] && activeOscs[key]) {
+      activeGains[key].gain.setTargetAtTime(
+        0,
+        audioCtx.currentTime,
+        mode === "piano" || mode === "harpsichord" ? 0.15 : 0.015
       );
-      delete activeOscs[key];
-      delete activeGains[key];
+      setTimeout(function () {
+        delete activeOscs[key];
+        delete activeGains[key];
+      }, 1);
 
       keyFill = document.getElementById(keysToNotes[key]);
-      // console.log(keyFill.classNawme);
       keyFill.style.fill =
         keyFill.className.baseVal === "white-key" ? "#ffffff" : "#000000";
     }
-    // numKeysPressed -= 1;
   }
   document.addEventListener("keydown", keyDown);
   document.addEventListener("keyup", keyUp);

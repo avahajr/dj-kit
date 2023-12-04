@@ -12,7 +12,7 @@ body {
 }
 
 main {
-  height: 100vh;
+  height: 75vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -42,6 +42,9 @@ main {
 .white-key:active,
 .black-key:active {
   fill: var(--Primary);
+}
+ul.nav.nav-tabs {
+  margin-top: 5rem;
 }
 
 @media screen and (orientation: landscape) {
