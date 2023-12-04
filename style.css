@@ -4,7 +4,9 @@
   --White: #ffffff;
   --Black: #000000;
 }
-
+p {
+  color: var(--White);
+}
 body {
   background-color: var(--Background);
   margin: 0;

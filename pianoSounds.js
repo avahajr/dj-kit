@@ -7,10 +7,12 @@ const asdrTimes = {
   attack: 0.1,
   release: 0.2,
 };
-var mode = "piano"; // lets us change the instrument. Options: Osc, piano, harpischord, custom
 var sample; // variable for the custom sample
 
 document.addEventListener("DOMContentLoaded", function (event) {
+  var modeSelector = document.getElementById("mode");
+  var mode = modeSelector.value; // lets us change the instrument. Options: Osc, piano, harpischord, custom
+  modeSelector.addEventListener("change", showSampleUpload);
   const keyValToFreq = {
     16: 261.625565300598634, // "LSHIFT" c4
     20: 293.66476791740756, // "CAPSLOCK" d4`
@@ -97,7 +99,15 @@ document.addEventListener("DOMContentLoaded", function (event) {
     80: 80, // o
     219: 82, // [
   };
-
+  function showSampleUpload() {
+    mode = modeSelector.value;
+    console.log("changed to", mode);
+    if (mode === "custom") {
+      document.getElementById("sample-audio").style.visibility = "visible";
+    } else {
+      document.getElementById("sample-audio").style.visibility = "hidden";
+    }
+  }
   function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     dynCompr = audioCtx.createDynamicsCompressor();
@@ -106,8 +116,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
   }
 
   function playNote(key) {
-    // sample = document.getElementById("audio-sample").value;
-
     if (!audioCtx) {
       initAudio();
       // console.log("init audio");
@@ -123,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
       newOsc.start();
       newOsc.connect(newGain).connect(dynCompr).connect(audioCtx.destination);
+      document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
     } else {
       // we are in sample mode
       if (mode !== "custom") {
@@ -131,15 +140,32 @@ document.addEventListener("DOMContentLoaded", function (event) {
         loadSample("keyboard_settings/" + mode + "_c4.wav").then((sample) =>
           playSample(sample, 60, keyValToMidi[key], key)
         );
+        document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
       } else {
         // custom audio sampling
-        sample = document.getElementById("audio-sample").value;
+        // document.getElementById("sample-audio").setAttribute("hidden", "false");
+        var input = document.getElementById("sample-audio");
+
+        if (input.files.length > 0) {
+          var sampleFile = input.files[0];
+          console.log(sampleFile.name);
+
+          loadSampleFromInput(sampleFile).then((sample) =>
+            playSample(sample, 60, keyValToMidi[key], key)
+          );
+          document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
+        }
       }
     }
   }
   function loadSample(url) {
     return fetch(url)
       .then((response) => response.arrayBuffer())
+      .then((buffer) => audioCtx.decodeAudioData(buffer));
+  }
+  function loadSampleFromInput(file) {
+    return file
+      .arrayBuffer()
       .then((buffer) => audioCtx.decodeAudioData(buffer));
   }
 
@@ -161,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
     console.log(key);
     if (keyValToFreq[key] && !activeOscs[key]) {
       playNote(key);
-      document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
     }
     // numKeysPressed += 1;
     // console.log(audioCtx);

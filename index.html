@@ -30,7 +30,7 @@
         <li class="nav-item active" role="presentation">
           <button
             class="nav-link"
-            id="piano-tab"
+            id="drums-tab"
             data-bs-toggle="tab"
             data-bs-target="#"
           >
@@ -38,7 +38,14 @@
           </button>
         </li>
       </ul>
-
+      <p>Select key mode:</p>
+      <select id="mode">
+        <option value="osc">oscillator</option>
+        <option value="piano">piano</option>
+        <option value="harpsichord">harpsichord</option>
+        <option value="custom">sample upload</option>
+      </select>
+      <input id="sample-audio" type="file" style="visibility: hidden" />
       <main>
         <svg
           viewBox="0 0 1602 420"
