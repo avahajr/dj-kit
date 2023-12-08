@@ -54,3 +54,26 @@ ul.nav.nav-tabs {
     height: 75%;
   }
 }
+
+.drum-pad {
+  border: 2px solid black;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.drum-pad.active {
+  background-color: yellow;
+}
+
+#drums {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.drum {
+  flex: 1 0 20%;
+}
