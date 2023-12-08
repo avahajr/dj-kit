@@ -1,4 +1,3 @@
-// import * as Pitchfinder from "pitchfinder";
 var audioCtx;
 var dynCompr;
 const activeOscs = {};
@@ -8,7 +7,7 @@ const asdrTimes = {
   attack: 0.1,
   release: 0.2,
 };
-// var sample; // variable for the custom sample
+var sample; // variable for the custom sample
 
 document.addEventListener("DOMContentLoaded", function (event) {
   var modeSelector = document.getElementById("mode");
@@ -144,6 +143,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
       } else {
         // custom audio sampling
+        // document.getElementById("sample-audio").setAttribute("hidden", "false");
         var input = document.getElementById("sample-audio");
 
         if (input.files.length > 0) {
@@ -179,10 +179,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
     source.start(0);
     activeGains[key] = newGain;
     activeOscs[key] = source;
-  }
-
-  function freqToMidi(freq) {
-    return (12 * Math.log(freq / 220.0)) / Math.log(2.0) + 57;
   }
 
   function keyDown(e) {
