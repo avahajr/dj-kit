@@ -3,6 +3,7 @@
   --Primary: #8180ff;
   --White: #ffffff;
   --Black: #000000;
+  --button: #32325e;
 }
 p {
   color: var(--White);
@@ -45,10 +46,48 @@ main {
 .black-key:active {
   fill: var(--Primary);
 }
-ul.nav.nav-tabs {
+/* .row {
   margin-top: 5rem;
+} */
+#rec-btn {
+  scale: 75%;
+  cursor: pointer;
+}
+#rec-btn:hover #rec-box {
+  stroke: #e5e5ff;
 }
 
+#rec-btn:hover #rec-text {
+  fill: #e5e5ff;
+}
+
+@keyframes glowing {
+  0% {
+    stroke: rgba(255, 0, 0, 0.25);
+    /* filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); */
+  }
+  25% {
+    stroke: rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    stroke: rgba(255, 0, 0, 0.9);
+    /* filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.9)); */
+  }
+  75% {
+    stroke: rgba(255, 0, 0, 0.5);
+
+    /* filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); */
+  }
+  100% {
+    stroke: rgba(255, 0, 0, 0.25);
+    /* filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); */
+  }
+}
+
+#rec-cir.rec-active {
+  animation: glowing 2s infinite; /* Adjust the duration as needed */
+  transition: 1;
+}
 @media screen and (orientation: landscape) {
   #keyboard {
     height: 75%;

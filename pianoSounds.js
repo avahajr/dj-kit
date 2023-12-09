@@ -150,7 +150,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
         } else {
           // we are in sample mode
           if (mode !== "custom") {
-            // console.log(mode);
             // piano, harpsichord
             loadSample("keyboard_settings/" + mode + "_c4.wav").then((sample) =>
               playSample(sample, 60, keyValToMidi[key], key)
@@ -231,5 +230,16 @@ document.addEventListener("DOMContentLoaded", function (event) {
     }
     document.addEventListener("keydown", keyDown);
     document.addEventListener("keyup", keyUp);
+    document.getElementById("rec-btn").addEventListener("click", toggleRec);
+
+    function toggleRec() {
+      if (!recording) {
+        document.getElementById("rec-cir").classList.add("rec-active");
+      } else {
+        document.getElementById("rec-cir").classList.remove("rec-active");
+      }
+      recording = !recording;
+      console.log("toggle rec:", recording);
+    }
   }
 });
