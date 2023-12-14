@@ -96,23 +96,25 @@ main {
 
 .drum-pad {
   border: 2px solid black;
+  background-color: black;
+  color: black;
+  border-radius: 50%;
   width: 100px;
   height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.3s;
+  /* transition: background-color 0.3s; */
 }
 
 .drum-pad.active {
-  background-color: yellow;
+  background-color: var(--Primary);
 }
 
-#drums {
+.drums {
   display: flex;
-  flex-wrap: wrap;
-}
-
-.drum {
-  flex: 1 0 20%;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5rem;
 }

@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
       74: 587.33, // "J" d5
       75: 659.255, // "K" e5
       76: 698.456, // "L" f5
-      59: 783.991, // ";" g5
+      186: 783.991, // ";" g5
       222: 880.0, // "'" a5
       13: 987.767, // return b5
       220: 1046.5, // "\" c5
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
       74: "d5", // "J" d5
       75: "e5", // "K" e5
       76: "f5", // "L" f5
-      59: "g5", // ";" g5
+      186: "g5", // ";" g5
       222: "a5", // "'" a5
       13: "b5", // return b5
       220: "c6", // "\" c6
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
       74: 74, // "J" d5
       75: 76, // "K" e5
       76: 77, // "L" f5
-      59: 79, // ";" g5
+      186: 79, // ";" g5
       222: 81, // "'" a5
       13: 83, // return b5
       220: 84, // "\" c6
