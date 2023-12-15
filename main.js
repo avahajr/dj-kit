@@ -24,8 +24,17 @@ function openComponent(comp, button) {
     if (comp === "drums") {
       document.getElementById(comp).style.display = "flex";
       document.getElementById(comp).style.flexDirection = "row";
-      document.getElementById(comp).style.flexWrap = "wrap";  // Allow drum pads to wrap into new rows
-      document.getElementById(comp).style.justifyContent = "space-between";
+      document.getElementById(comp).style.flexWrap = "wrap"; 
+      // document.getElementById(comp).style.flexBasis = "50%";
+      // document.getElementById(comp).style.justifyContent = "space-between";
+
+      const componentWidthPercentage = 20;
+      const components = document.getElementById(comp).getElementsByClassName("drum-pad");
+
+      for (let i = 0; i < components.length; i++) {
+        components[i].style.width = `${componentWidthPercentage}%`;
+      }
+
     }
     else {
         document.getElementById(comp).style.display = "block";
