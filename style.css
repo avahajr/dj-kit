@@ -64,22 +64,26 @@ main {
 @keyframes glowing {
   0% {
     stroke: rgba(255, 0, 0, 0.25);
+    color: rgba(255, 0, 0, 0.25);
     /* filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); */
   }
   25% {
     stroke: rgba(255, 0, 0, 0.5);
+    color: rgba(255, 0, 0, 0.5)
   }
   50% {
     stroke: rgba(255, 0, 0, 0.9);
+    color: rgba(255, 0, 0, 0.9);
     /* filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.9)); */
   }
   75% {
     stroke: rgba(255, 0, 0, 0.5);
-
+    color: rgba(255, 0, 0, 0.5);
     /* filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); */
   }
   100% {
     stroke: rgba(255, 0, 0, 0.25);
+    color: rgba(255, 0, 0, 0.25);
     /* filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); */
   }
 }
@@ -88,6 +92,7 @@ main {
   animation: glowing 2s infinite; /* Adjust the duration as needed */
   transition: 1;
 }
+
 @media screen and (orientation: landscape) {
   #keyboard {
     height: 75%;
@@ -112,10 +117,52 @@ main {
   background-color: var(--Primary);
 }
 
-.drums {
-  /* display: flex; */
-  /* flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  margin-top: 5rem; */
+.voice-container {
+  margin-right: -5%;
+}
+
+.voice-button {
+  border: 2px solid white;
+  color: white;
+  border-radius: 10%;
+  background-color: transparent;
+  margin: 2px;
+  box-shadow: #8180ff 0px 0px 5px;
+  min-width: 100px;
+}
+
+.voice-button:hover {
+  border: 2px solid var(--Primary);
+  color: var(--Primary);
+  cursor: pointer;
+}
+
+#microphone.rec-voice-active {
+  animation: glowing 2s infinite; /* Adjust the duration as needed */
+  transition: 1;
+}
+
+#play.play-active {
+  animation: glowing 2s infinite; /* Adjust the duration as needed */
+  transition: 1;
+}
+
+.fas {
+  color: var(--White);
+  margin-right: 12px;
+}
+
+#download-link {
+  display: none;
+}
+
+#download-link i {
+  font-size: 28px; /* You can adjust the size as needed */
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.fa-download {
+  color: var(--White);
+  margin-right: 12px;
 }

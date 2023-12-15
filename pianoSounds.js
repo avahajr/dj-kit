@@ -2,7 +2,6 @@ var audioCtx;
 var dynCompr;
 const activeOscs = {};
 const activeGains = {};
-var recording = false; // to implement later
 const asdrTimes = {
   attack: 0.1,
   release: 0.2,
@@ -230,16 +229,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
     }
     document.addEventListener("keydown", keyDown);
     document.addEventListener("keyup", keyUp);
-    document.getElementById("rec-btn").addEventListener("click", toggleRec);
-
-    function toggleRec() {
-      if (!recording) {
-        document.getElementById("rec-cir").classList.add("rec-active");
-      } else {
-        document.getElementById("rec-cir").classList.remove("rec-active");
-      }
-      recording = !recording;
-      console.log("toggle rec:", recording);
-    }
+    
   }
 });
