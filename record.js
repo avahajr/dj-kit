@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
   var notesInRecording = [];
   const keysToOscs = {};
   const keysToGains = {};
+  var loopStartTime;
+  var loopInterval;
 
   // DEBUG
   // var notesInRecording = [
@@ -22,7 +24,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
   document.getElementById("rec-btn").addEventListener("click", toggleRec);
   document.addEventListener("keydown", recordKeyStroke);
   document.addEventListener("keyup", endKeyStroke);
-  document.getElementById("play-rec").addEventListener("click", playRecording);
+  document
+    .getElementById("play-rec")
+    .addEventListener("click", playPauseRecording);
 
   function toggleRec() {
     if (!recording) {
@@ -65,51 +69,61 @@ document.addEventListener("DOMContentLoaded", function (event) {
       keyStarts[key] = null;
     }
   }
-  function playRecording() {
-    // var keysToActiveOscs = {}; // local oscs to the recording {key: OscNode}
-    // var keysToActiveGains = {}; // and their gainNodes {key: GainNode}
-
+  function playPauseRecording() {
+    // loops the recording, or if there's already a loop, stop it.
+    if (loopInterval) {
+      clearInterval(loopInterval);
+      loopInterval = null;
+    }
     const startTime = audioCtx.currentTime; // recording start time
-    if (!recording) {
+    if (!recording && notesInRecording) {
       notesInRecording.sort((a, b) => a.start - b.start); // sort by the start time (first played notes are first played)
-      const offset = notesInRecording[0].start;
       console.log("playing recording:", notesInRecording);
+      loopStartTime = startTime;
+      loopRecording();
+    }
+  }
+  function playNote(key, startTime, duration, volume) {
+    // plays a note for a recording.
+    if (!keysToOscs[key] || !keysToGains[key]) {
+      keysToOscs[key] = audioCtx.createOscillator();
+      keysToOscs[key].frequency.setValueAtTime(keyValToFreq[key], startTime); // Set frequency
 
+      // Create a GainNode for this oscillator
+      keysToGains[key] = audioCtx.createGain();
+
+      // Connect the oscillator to its gain node
+      keysToOscs[key].connect(keysToGains[key]);
+
+      // Connect the gain node to the audio context's destination
+      keysToGains[key].connect(recCompr).connect(audioCtx.destination);
+
+      // Start and stop the oscillator at the specified times
+      keysToOscs[key].start(startTime);
+    }
+    // now, schedule
+    keysToGains[key].gain.setTargetAtTime(volume, startTime, 0.01); // Set volume
+
+    keysToGains[key].gain.setTargetAtTime(0, startTime + duration, 0.01);
+  }
+
+  function loopRecording() {
+    const endTime = notesInRecording[notesInRecording.length - 1].end;
+    const loopDuration = endTime - loopStartTime;
+
+    loopInterval = setInterval(function () {
       for (const noteInfo of notesInRecording) {
         // console.log("playing note", noteInfo);
         if (noteInfo.instrument === "osc") {
           const key = noteInfo.keyVal;
           playNote(
             key,
-            startTime + noteInfo.start - offset,
+            loopStartTime + noteInfo.start - notesInRecording[0].start,
             noteInfo.end - noteInfo.start,
             0.1
           );
         }
       }
-    }
-    function playNote(key, startTime, duration, volume) {
-      // Create an OscillatorNode
-      if (!keysToOscs[key] || !keysToGains[key]) {
-        keysToOscs[key] = audioCtx.createOscillator();
-        keysToOscs[key].frequency.setValueAtTime(keyValToFreq[key], startTime); // Set frequency
-
-        // Create a GainNode for this oscillator
-        keysToGains[key] = audioCtx.createGain();
-
-        // Connect the oscillator to its gain node
-        keysToOscs[key].connect(keysToGains[key]);
-
-        // Connect the gain node to the audio context's destination
-        keysToGains[key].connect(recCompr).connect(audioCtx.destination);
-
-        // Start and stop the oscillator at the specified times
-        keysToOscs[key].start(startTime);
-      }
-      // now, schedule
-      keysToGains[key].gain.setTargetAtTime(volume, startTime, 0.01); // Set volume
-
-      keysToGains[key].gain.setTargetAtTime(0, startTime + duration, 0.01);
-    }
+    }, loopDuration * 1000);
   }
 });
