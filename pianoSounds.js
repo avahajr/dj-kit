@@ -3,10 +3,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
   const audioCtx = window.audioCtx;
   const activeOscs = {};
   const activeGains = {};
-  const asdrTimes = {
-    attack: 0.1,
-    release: 0.2,
-  };
+
   var pianoIsActive;
   pianoIsActive = document
     .getElementById("piano-tab")

@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
   var recording = false;
   var keyStarts = {}; // int (keycode) to int (time)
   var notesInRecording = [];
+  const keysToOscs = {};
+  const keysToGains = {};
 
   // DEBUG
   // var notesInRecording = [
@@ -78,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         if (noteInfo.instrument === "osc") {
           const key = noteInfo.keyVal;
           playNote(
-            keyValToFreq[key],
+            key,
             startTime + noteInfo.start - offset,
             noteInfo.end - noteInfo.start,
             0.1
@@ -86,25 +88,28 @@ document.addEventListener("DOMContentLoaded", function (event) {
         }
       }
     }
-    function playNote(frequency, startTime, duration, volume) {
+    function playNote(key, startTime, duration, volume) {
       // Create an OscillatorNode
-      const oscillator = audioCtx.createOscillator();
-      oscillator.frequency.setValueAtTime(frequency, startTime); // Set frequency
+      if (!keysToOscs[key] || !keysToGains[key]) {
+        keysToOscs[key] = audioCtx.createOscillator();
+        keysToOscs[key].frequency.setValueAtTime(keyValToFreq[key], startTime); // Set frequency
 
-      // Create a GainNode for this oscillator
-      const gainNode = audioCtx.createGain();
-      gainNode.gain.setValueAtTime(volume, startTime); // Set volume
+        // Create a GainNode for this oscillator
+        keysToGains[key] = audioCtx.createGain();
 
-      // Connect the oscillator to its gain node
-      oscillator.connect(gainNode);
+        // Connect the oscillator to its gain node
+        keysToOscs[key].connect(keysToGains[key]);
 
-      // Connect the gain node to the audio context's destination
-      gainNode.connect(recCompr).connect(audioCtx.destination);
+        // Connect the gain node to the audio context's destination
+        keysToGains[key].connect(recCompr).connect(audioCtx.destination);
 
-      // Start and stop the oscillator at the specified times
-      oscillator.start(startTime);
-      // oscillator.stop(startTime + duration);
-      gainNode.gain.setTargetAtTime(0, startTime + duration, 0.01);
+        // Start and stop the oscillator at the specified times
+        keysToOscs[key].start(startTime);
+      }
+      // now, schedule
+      keysToGains[key].gain.setTargetAtTime(volume, startTime, 0.01); // Set volume
+
+      keysToGains[key].gain.setTargetAtTime(0, startTime + duration, 0.01);
     }
   }
 });

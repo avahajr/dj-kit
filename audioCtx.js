@@ -3,20 +3,6 @@
 window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 window.globalCompr = window.audioCtx.createDynamicsCompressor();
 
-const asdrTimes = {
-  attack: 0.1,
-  release: 0.2,
-};
-
-globalCompr.release.setValueAtTime(
-  asdrTimes.release,
-  window.audioCtx.currentTime
-);
-globalCompr.attack.setValueAtTime(
-  asdrTimes.release,
-  window.audioCtx.currentTime
-);
-
 window.keyValToFreq = {
   16: 261.625565300598634, // "LSHIFT" c4
   20: 293.66476791740756, // "CAPSLOCK" d4`
