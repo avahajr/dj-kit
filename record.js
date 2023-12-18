@@ -10,16 +10,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
   // DEBUG
   var notesInRecording = [
     { instrument: "osc", keyVal: "83", start: 0, end: 1 },
-    { instrument: "osc", keyVal: "68", start: 4, end: 5 },
+    { instrument: "osc", keyVal: "83", start: 4, end: 5 },
     // { instrument: "osc", keyVal: "68", start: 1, end: 1.5 },
     // { instrument: "osc", keyVal: "68", start: 2, end: 2.5 },
   ];
 
   const keyValToFreq = window.keyValToFreq;
-
-  // const keysToNotes = window.keysToNotes;
-
-  // const keyValToMidi = window.keyValToMidi;
 
   document.getElementById("rec-btn").addEventListener("click", toggleRec);
   document.addEventListener("keydown", recordKeyStroke);
@@ -68,57 +64,47 @@ document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   function playRecording() {
-    var keysToActiveOscs = {}; // local oscs to the recording {key: Osc}
-    var keysToActiveGains = {}; // and their gainNodes {key: GainNode}
-    let startTime = audioCtx.currentTime; // recording start time
+    // var keysToActiveOscs = {}; // local oscs to the recording {key: OscNode}
+    // var keysToActiveGains = {}; // and their gainNodes {key: GainNode}
+
+    const startTime = audioCtx.currentTime; // recording start time
     if (!recording) {
       notesInRecording.sort((a, b) => a.start - b.start); // sort by the start time (first played notes are first played)
       const offset = notesInRecording[0].start;
       console.log("playing recording:", notesInRecording);
 
-      for (let i = 0; i < notesInRecording.length; i++) {
-        let noteInfo = notesInRecording[i];
-
+      for (const noteInfo of notesInRecording) {
         // console.log("playing note", noteInfo);
         if (noteInfo.instrument === "osc") {
-          let key = noteInfo.keyVal;
-
-          if (!keysToActiveOscs[key]) {
-            // this note hasn't been played yet in the rec, so create new osc/gains
-            keysToActiveOscs[key] = audioCtx.createOscillator();
-            keysToActiveGains[key] = audioCtx.createGain();
-            keysToActiveOscs[key].frequency.setValueAtTime(
-              keyValToFreq[key],
-              startTime
-            );
-            keysToActiveOscs[key].start();
-            console.log("create osc for key", key);
-          }
-
-          // In the case where there is a gap between notes, time elapsed needs to be updated
-          keysToActiveGains[key].gain.setTargetAtTime(
-            0.1,
+          const key = noteInfo.keyVal;
+          playNote(
+            keyValToFreq[key],
             startTime + noteInfo.start - offset,
-            0.01
-          );
-
-          keysToActiveOscs[key]
-            .connect(keysToActiveGains[key])
-            .connect(recCompr)
-            .connect(audioCtx.destination);
-
-          // update time elapsed to reflect that we "played" the note
-          // timeElapsed += noteDuration;
-
-          // now turn off the note after its duration
-          keysToActiveGains[key].gain.setTargetAtTime(
-            0,
-            startTime + noteInfo.end - offset,
-            0.01
+            noteInfo.end - noteInfo.start,
+            0.1
           );
         }
       }
-      // console.log(keysToActiveOscs);
+    }
+    function playNote(frequency, startTime, duration, volume) {
+      // Create an OscillatorNode
+      const oscillator = audioCtx.createOscillator();
+      oscillator.frequency.setValueAtTime(frequency, startTime); // Set frequency
+
+      // Create a GainNode for this oscillator
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(volume, startTime); // Set volume
+
+      // Connect the oscillator to its gain node
+      oscillator.connect(gainNode);
+
+      // Connect the gain node to the audio context's destination
+      gainNode.connect(recCompr).connect(audioCtx.destination);
+
+      // Start and stop the oscillator at the specified times
+      oscillator.start(startTime);
+      // oscillator.stop(startTime + duration);
+      gainNode.gain.setTargetAtTime(0, startTime + duration, 0.01);
     }
   }
 });
