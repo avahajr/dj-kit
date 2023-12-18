@@ -8,12 +8,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
   var notesInRecording = [];
 
   // DEBUG
-  var notesInRecording = [
-    { instrument: "osc", keyVal: "83", start: 0, end: 1 },
-    { instrument: "osc", keyVal: "83", start: 4, end: 5 },
-    // { instrument: "osc", keyVal: "68", start: 1, end: 1.5 },
-    // { instrument: "osc", keyVal: "68", start: 2, end: 2.5 },
-  ];
+  // var notesInRecording = [
+  //   { instrument: "osc", keyVal: "83", start: 0, end: 1 },
+  //   { instrument: "osc", keyVal: "83", start: 4, end: 5 },
+  //   // { instrument: "osc", keyVal: "68", start: 1, end: 1.5 },
+  //   // { instrument: "osc", keyVal: "68", start: 2, end: 2.5 },
+  // ];
 
   const keyValToFreq = window.keyValToFreq;
 
