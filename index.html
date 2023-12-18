@@ -7,9 +7,9 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
-    <link 
-      rel="stylesheet" 
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       crossorigin="anonymous"
     />
     <meta charset="UTF-8" />
@@ -17,6 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DJ Kit</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="audioCtx.js"></script>
     <script src="./pianoSounds.js"></script>
     <script src="./main.js"></script>
     <script src="./drums.js"></script>
@@ -30,13 +31,17 @@
       <div class="row justify-content-end">
         <div class="col-1">
           <div>
-            <button class="voice-button" id="voice-rec-btn"><i class="fas fa-microphone" id="microphone"></i>Voice</button>
+            <button class="voice-button" id="voice-rec-btn">
+              <i class="fas fa-microphone" id="microphone"></i>Voice
+            </button>
           </div>
           <div>
-            <button class="voice-button" id="voice-play-btn"><i class="fas fa-play"  id="play"></i>Voice</button>
+            <button class="voice-button" id="voice-play-btn">
+              <i class="fas fa-play" id="play"></i>Voice
+            </button>
           </div>
         </div>
-        <div class="d-flex justify-content-end col-2">
+        <div class="col-2">
           <svg
             id="rec-btn"
             width="139"
@@ -115,9 +120,28 @@
               </filter>
             </defs>
           </svg>
+          <button id="play-rec" class="btn btn-primary">
+            <svg
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 5V19M21 5V19M3 7.20608V16.7939C3 17.7996 3 18.3024 3.19886 18.5352C3.37141 18.7373 3.63025 18.8445 3.89512 18.8236C4.20038 18.7996 4.55593 18.4441 5.26704 17.733L10.061 12.939C10.3897 12.6103 10.554 12.446 10.6156 12.2565C10.6697 12.0898 10.6697 11.9102 10.6156 11.7435C10.554 11.554 10.3897 11.3897 10.061 11.061L5.26704 6.26704C4.55593 5.55593 4.20038 5.20038 3.89512 5.17636C3.63025 5.15551 3.37141 5.26273 3.19886 5.46476C3 5.69759 3 6.20042 3 7.20608Z"
+                stroke="#FFFFFF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
         </div>
         <div class="col-1">
-          <span id="download-link" onclick="downloadRecording()"> <i class="fas fa-download"></i></span>
+          <span id="download-link" onclick="downloadRecording()">
+            <i class="fas fa-download"></i
+          ></span>
         </div>
       </div>
 
@@ -332,9 +356,12 @@
 
       <!-- ----------DRUMS---------- -->
 
-      <div class="component drums" id="drums" style="display: none;">
+      <div class="component drums" id="drums" style="display: none">
         <div class="drum-pad drum" id="hi-hat" data-key="Q">
-          <p style="text-align: center;">Hi-Hat<br> Q</p>
+          <p style="text-align: center">
+            Hi-Hat<br />
+            Q
+          </p>
           <audio
             class="clip"
             id="Q"
@@ -342,7 +369,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="hi-hat-closed" data-key="W">
-          <p style="text-align: center;">Hi-Hat Closed <br> W</p>
+          <p style="text-align: center">
+            Hi-Hat Closed <br />
+            W
+          </p>
           <audio
             class="clip"
             id="W"
@@ -350,7 +380,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="hi-hat-open" data-key="E">
-          <p style="text-align: center;">Hi-Hat Open <br> E</p>
+          <p style="text-align: center">
+            Hi-Hat Open <br />
+            E
+          </p>
           <audio
             class="clip"
             id="E"
@@ -358,7 +391,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="ride" data-key="R">
-          <p style="text-align: center;">Kick n Hat <br> R</p>
+          <p style="text-align: center">
+            Kick n Hat <br />
+            R
+          </p>
           <audio
             class="clip"
             id="R"
@@ -366,7 +402,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="kick" data-key="A">
-          <p style="text-align: center;">Kick <br> A</p>
+          <p style="text-align: center">
+            Kick <br />
+            A
+          </p>
           <audio
             class="clip"
             id="A"
@@ -374,7 +413,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="hi-hat-pedal" data-key="S">
-          <p style="text-align: center;">Punchy Kick <br> S</p>
+          <p style="text-align: center">
+            Punchy Kick <br />
+            S
+          </p>
           <audio
             class="clip"
             id="S"
@@ -382,7 +424,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="snare" data-key="D">
-          <p style="text-align: center;">Snare <br> D</p>
+          <p style="text-align: center">
+            Snare <br />
+            D
+          </p>
           <audio
             class="clip"
             id="D"
@@ -390,7 +435,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="clap" data-key="F">
-          <p style="text-align: center;">Clap  <br> F</p>
+          <p style="text-align: center">
+            Clap <br />
+            F
+          </p>
           <audio
             class="clip"
             id="F"
@@ -398,7 +446,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="tom-1" data-key="Z">
-          <p style="text-align: center;">Tom 1 <br> Z</p>
+          <p style="text-align: center">
+            Tom 1 <br />
+            Z
+          </p>
           <audio
             class="clip"
             id="Z"
@@ -406,7 +457,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="tom-2" data-key="X">
-          <p style="text-align: center;">Tom 2  <br> X</p>
+          <p style="text-align: center">
+            Tom 2 <br />
+            X
+          </p>
           <audio
             class="clip"
             id="X"
@@ -414,7 +468,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="tom-3" data-key="C">
-          <p style="text-align: center;">Tom 3 <br> C</p>
+          <p style="text-align: center">
+            Tom 3 <br />
+            C
+          </p>
           <audio
             class="clip"
             id="C"
@@ -422,7 +479,10 @@
           ></audio>
         </div>
         <div class="drum-pad drum" id="tom-4" data-key="V">
-          <p style="text-align: center;">Tom 4 <br> V</p>
+          <p style="text-align: center">
+            Tom 4 <br />
+            V
+          </p>
           <audio
             class="clip"
             id="V"
