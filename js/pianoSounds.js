@@ -1,17 +1,13 @@
+import { loadSample, loadSampleFromInput } from "./sampleLoader.js";
 document.addEventListener("DOMContentLoaded", function (event) {
   const pianoCompr = window.globalCompr;
   const audioCtx = window.audioCtx;
   const activeOscs = {};
   const activeGains = {};
 
-  var pianoIsActive;
-  pianoIsActive = document
+  var pianoIsActive = document
     .getElementById("piano-tab")
     .classList.contains("active");
-  var isRecording = document
-    .getElementById("rec-cir")
-    .classList.contains("rec-active");
-  // console.log("recording state:", isRecording);
   if (pianoIsActive) {
     var modeSelector = document.getElementById("mode");
     var mode = modeSelector.value; // lets us change the instrument. Options: Osc, piano, harpischord, custom
@@ -46,14 +42,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
       pianoIsActive = document
         .getElementById("piano-tab")
         .classList.contains("active");
-      isRecording = document
-        .getElementById("rec-cir")
-        .classList.contains("rec-active");
+
       if (pianoIsActive) {
         if (!pianoCompr) {
           initAudio();
         }
-        // keyStarts[key] = audioCtx.currentTime;
         if (mode === "osc") {
           const newOsc = audioCtx.createOscillator();
           newOsc.frequency.setValueAtTime(
@@ -82,10 +75,10 @@ document.addEventListener("DOMContentLoaded", function (event) {
             document.getElementById(keysToNotes[key]).style.fill = "#8180ff";
           } else {
             // custom audio sampling
-            var input = document.getElementById("sample-audio");
+            const input = document.getElementById("sample-audio");
 
             if (input.files.length > 0) {
-              var sampleFile = input.files[0];
+              const sampleFile = input.files[0];
               console.log(sampleFile.name);
 
               loadSampleFromInput(sampleFile).then((sample) =>
@@ -96,16 +89,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
           }
         }
       }
-    }
-    function loadSample(url) {
-      return fetch(url)
-        .then((response) => response.arrayBuffer())
-        .then((buffer) => audioCtx.decodeAudioData(buffer));
-    }
-    function loadSampleFromInput(file) {
-      return file
-        .arrayBuffer()
-        .then((buffer) => audioCtx.decodeAudioData(buffer));
     }
 
     function playSample(sample, sampleMidiNote, midiNoteToPlay, key) {
@@ -146,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
           delete activeGains[key];
         }, 1);
 
-        keyFill = document.getElementById(keysToNotes[key]);
+        let keyFill = document.getElementById(keysToNotes[key]);
         keyFill.style.fill =
           keyFill.className.baseVal === "white-key" ? "#ffffff" : "#000000";
       }

@@ -1,3 +1,5 @@
+import { loadSample, loadSampleFromInput } from "./sampleLoader.js";
+
 document.addEventListener("DOMContentLoaded", function (event) {
   const audioCtx = window.audioCtx; // use the global audio context
   var recCompr = window.globalCompr;
@@ -86,19 +88,22 @@ document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 
-  function loadSample(url) {
-    return fetch(url)
-      .then((response) => response.arrayBuffer())
-      .then((buffer) => audioCtx.decodeAudioData(buffer));
-  }
-  function loadSampleFromInput(file) {
-    return file
-      .arrayBuffer()
-      .then((buffer) => audioCtx.decodeAudioData(buffer));
-  }
-
   async function playNote(key, startTime, duration, volume, instrument) {
     // plays a note for a recording.
+    var sample;
+
+    // load the sample if necessary
+    if (instrument === "piano" || instrument === "harpsichord") {
+      sample = await loadSample("keyboard_settings/" + instrument + "_c4.wav");
+    } else if (instrument === "custom") {
+      const input = document.getElementById("sample-audio");
+      if (input.files.length > 0) {
+        const sampleFile = input.files[0];
+        console.log(sampleFile.name);
+      }
+      sample = await loadSampleFromInput(sampleFile);
+    }
+
     switch (instrument) {
       case "osc":
         if (!(keysToOscs[key] instanceof OscillatorNode) || !keysToOscs[key]) {
@@ -108,17 +113,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
         }
         break;
       case "piano":
-        // if (!(keysToOscs[key] instanceof AudioBufferSourceNode)) {
-        const pianoSample = await loadSample(
-          "keyboard_settings/" + instrument + "_c4.wav"
-        );
-        const pianoSource = audioCtx.createBufferSource();
-        pianoSource.buffer = pianoSample;
-        pianoSource.playbackRate.value = 2 ** ((keyValToMidi[key] - 60) / 12);
-        keysToOscs[key] = pianoSource;
-        pianoSource.start(startTime);
+        keysToOscs[key] = audioCtx.createBufferSource();
+        keysToOscs[key].buffer = sample;
+        keysToOscs[key].playbackRate.value =
+          2 ** ((keyValToMidi[key] - 60) / 12);
+        keysToOscs[key].start(startTime);
 
-        // }
         break;
       case "harpsichord":
         // if (!(keysToOscs[key] instanceof AudioBufferSourceNode)) {
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     loopIntervalId = setInterval(function () {
       for (const noteInfo of notesInRecording) {
-        console.log("playing note", noteInfo);
+        // console.log("playiang note", noteInfo);
         if (noteInfo.keyVal) {
           const key = noteInfo.keyVal;
           playNote(
