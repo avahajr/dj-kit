@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
   const audioCtx = window.audioCtx; // use the global audio context
   var recCompr = window.globalCompr;
 
-  var activeInstrument = "osc";
   var recording = false;
   var keyStarts = {}; // int (keycode) to int (time)
   var notesInRecording = [];
@@ -19,7 +18,10 @@ document.addEventListener("DOMContentLoaded", function (event) {
   // ];
 
   const keyValToFreq = window.keyValToFreq;
+  const keyValToMidi = window.keyValToMidi;
 
+  const modeSelector = document.getElementById("mode");
+  var activeInstrument = modeSelector.value;
   document.getElementById("rec-btn").addEventListener("click", toggleRec);
   document.addEventListener("keydown", recordKeyStroke);
   document.addEventListener("keyup", endKeyStroke);
@@ -47,12 +49,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
   }
 
   function recordKeyStroke(e) {
-    // console.log("keystroke");
+    activeInstrument = modeSelector.value;
     // fires repeatedly as long as you hold the key
     const key = (e.detail || e.which).toString();
     if (recording && keyValToFreq[key] && !keyStarts[key]) {
       keyStarts[key] = audioCtx.currentTime;
-      // console.log(keyStarts);
     }
   }
 
@@ -84,25 +85,74 @@ document.addEventListener("DOMContentLoaded", function (event) {
       loopRecording();
     }
   }
-  function playNote(key, startTime, duration, volume) {
+
+  function loadSample(url) {
+    return fetch(url)
+      .then((response) => response.arrayBuffer())
+      .then((buffer) => audioCtx.decodeAudioData(buffer));
+  }
+  function loadSampleFromInput(file) {
+    return file
+      .arrayBuffer()
+      .then((buffer) => audioCtx.decodeAudioData(buffer));
+  }
+
+  async function playNote(key, startTime, duration, volume, instrument) {
     // plays a note for a recording.
-    if (!keysToOscs[key] || !keysToGains[key]) {
-      keysToOscs[key] = audioCtx.createOscillator();
-      keysToOscs[key].frequency.setValueAtTime(keyValToFreq[key], startTime); // Set frequency
+    switch (instrument) {
+      case "osc":
+        if (!(keysToOscs[key] instanceof OscillatorNode) || !keysToOscs[key]) {
+          keysToOscs[key] = audioCtx.createOscillator();
+          keysToOscs[key].frequency.value = keyValToFreq[key]; // Set frequency
+          keysToOscs[key].start();
+        }
+        break;
+      case "piano":
+        // if (!(keysToOscs[key] instanceof AudioBufferSourceNode)) {
+        const pianoSample = await loadSample(
+          "keyboard_settings/" + instrument + "_c4.wav"
+        );
+        const pianoSource = audioCtx.createBufferSource();
+        pianoSource.buffer = pianoSample;
+        pianoSource.playbackRate.value = 2 ** ((keyValToMidi[key] - 60) / 12);
+        keysToOscs[key] = pianoSource;
+        pianoSource.start(startTime);
 
-      // Create a GainNode for this oscillator
-      keysToGains[key] = audioCtx.createGain();
-
-      // Connect the oscillator to its gain node
-      keysToOscs[key].connect(keysToGains[key]);
-
-      // Connect the gain node to the audio context's destination
-      keysToGains[key].connect(recCompr).connect(audioCtx.destination);
-
-      // Start and stop the oscillator at the specified times
-      keysToOscs[key].start(startTime);
+        // }
+        break;
+      case "harpsichord":
+        // if (!(keysToOscs[key] instanceof AudioBufferSourceNode)) {
+        const harpsichordSample = await loadSample(
+          "keyboard_settings/" + instrument + "_c4.wav"
+        );
+        const harpsichordSource = audioCtx.createBufferSource();
+        harpsichordSource.buffer = harpsichordSample;
+        harpsichordSource.playbackRate.value =
+          2 ** ((keyValToMidi[key] - 60) / 12);
+        keysToOscs[key] = harpsichordSource;
+        harpsichordSource.start(startTime);
+        // }
+        break;
+      default:
+        console.error("invalid instrument");
+        break;
     }
+
+    if (!keysToGains[key]) {
+      const newGain = audioCtx.createGain();
+      newGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      keysToGains[key] = newGain;
+    }
+
+    keysToOscs[key].connect(keysToGains[key]);
+
+    // Connect the gain node to the audio context's destination
+    keysToGains[key].connect(recCompr).connect(audioCtx.destination);
+
+    // Start and stop the oscillator at the specified times
     // now, schedule
+    // console.log("playing freq", keysToOscs[key].frequency.value);
+
     keysToGains[key].gain.setTargetAtTime(volume, startTime, 0.01); // Set volume
 
     keysToGains[key].gain.setTargetAtTime(0, startTime + duration, 0.01);
@@ -118,13 +168,14 @@ document.addEventListener("DOMContentLoaded", function (event) {
     loopIntervalId = setInterval(function () {
       for (const noteInfo of notesInRecording) {
         console.log("playing note", noteInfo);
-        if (noteInfo.keyVal && noteInfo.instrument === "osc") {
+        if (noteInfo.keyVal) {
           const key = noteInfo.keyVal;
           playNote(
             key,
             audioCtx.currentTime + noteInfo.start - notesInRecording[0].start,
             noteInfo.end - noteInfo.start,
-            0.1
+            0.1,
+            noteInfo.instrument
           );
         }
       }
