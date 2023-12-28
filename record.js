@@ -8,8 +8,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
   var notesInRecording = [];
   const keysToOscs = {};
   const keysToGains = {};
-  var loopStartTime;
-  var loopInterval;
+  var loopIntervalId;
 
   // DEBUG
   // var notesInRecording = [
@@ -35,8 +34,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
       document.getElementById("rec-cir").classList.add("rec-active");
     } else {
       // if the recording was already on, then we have a recording state
+      notesInRecording.push({
+        instrument: activeInstrument,
+        keyVal: null,
+        end: audioCtx.currentTime,
+      });
       console.log(notesInRecording);
-      // loopRecording();
       document.getElementById("rec-cir").classList.remove("rec-active");
     }
     recording = !recording;
@@ -71,15 +74,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
   }
   function playPauseRecording() {
     // loops the recording, or if there's already a loop, stop it.
-    if (loopInterval) {
-      clearInterval(loopInterval);
-      loopInterval = null;
-    }
-    const startTime = audioCtx.currentTime; // recording start time
-    if (!recording && notesInRecording) {
+    if (loopIntervalId) {
+      console.log("ending recording.");
+      clearInterval(loopIntervalId);
+      loopIntervalId = null;
+    } else if (!recording && notesInRecording) {
       notesInRecording.sort((a, b) => a.start - b.start); // sort by the start time (first played notes are first played)
       console.log("playing recording:", notesInRecording);
-      loopStartTime = startTime;
       loopRecording();
     }
   }
@@ -109,21 +110,24 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
   function loopRecording() {
     const endTime = notesInRecording[notesInRecording.length - 1].end;
-    const loopDuration = endTime - loopStartTime;
 
-    loopInterval = setInterval(function () {
+    console.log(endTime);
+
+    const recordingDuration = endTime - notesInRecording[0].start;
+
+    loopIntervalId = setInterval(function () {
       for (const noteInfo of notesInRecording) {
-        // console.log("playing note", noteInfo);
-        if (noteInfo.instrument === "osc") {
+        console.log("playing note", noteInfo);
+        if (noteInfo.keyVal && noteInfo.instrument === "osc") {
           const key = noteInfo.keyVal;
           playNote(
             key,
-            loopStartTime + noteInfo.start - notesInRecording[0].start,
+            audioCtx.currentTime + noteInfo.start - notesInRecording[0].start,
             noteInfo.end - noteInfo.start,
             0.1
           );
         }
       }
-    }, loopDuration * 1000);
+    }, recordingDuration * 1000);
   }
 });
